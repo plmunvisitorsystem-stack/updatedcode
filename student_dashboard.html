@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PLMun - Student Dashboard</title>
+
+    <link rel="icon" type="image/png" href="plmun_logo.png">
+    <link rel="shortcut icon" type="image/png" href="plmun_logo.png">
+    <link rel="apple-touch-icon" href="plmun_logo.png">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #0b1120; color: #e5e7eb; margin: 0; overflow-x: hidden; }
+
+        .sidebar { width: 260px; background: #111827; border-right: 1px solid #1f2937; min-height: 100vh; position: fixed; top: 0; left: 0; padding: 20px 0; display: flex; flex-direction: column; z-index: 1000; transition: transform 0.3s ease; transform: translateX(-100%); }
+        .sidebar.open { transform: translateX(0); box-shadow: 5px 0 25px rgba(0,0,0,0.5); }
+
+        .sidebar .brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1f2937; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;}
+        .sidebar .brand h4 { color: white; font-size: 1.1rem; margin: 0; font-weight: 700; line-height: 1.2;}
+        .sidebar .brand span { color: #fbbf24; font-size: 0.8rem; font-weight: 500;}
+        .sidebar a { color: #9ca3af; text-decoration: none; padding: 12px 20px; display: flex; align-items: center; gap: 12px; font-weight: 500; transition: 0.2s; font-size: 14px;}
+        .sidebar a:hover, .sidebar a.active { background: #1f2937; color: white; border-left: 3px solid #fbbf24; }
+        .sidebar a i { font-size: 18px; }
+
+        .main-content { margin-left: 0; padding: 30px 40px; transition: 0.3s; }
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+
+        .menu-btn { display: inline-flex; align-items: center; justify-content: center; background: #111827; border: 1px solid #1f2937; color: #fbbf24; font-size: 22px; cursor: pointer; margin-right: 15px; width: 44px; height: 44px; border-radius: 12px; transition: 0.3s; flex-shrink: 0; }
+        .menu-btn:hover { background: #1f2937; color: white; border-color: #3b82f6; }
+
+        .user-profile { display: flex; align-items: center; gap: 10px; background: #111827; padding: 5px 15px 5px 5px; border-radius: 50px; border: 1px solid #1f2937; cursor: pointer;}
+        .user-profile img { width: 35px; height: 35px; border-radius: 50%; background: #fbbf24; object-fit: cover;}
+        .user-profile span { color: white; font-weight: 600; font-size: 14px;}
+
+        .welcome-banner { background: linear-gradient(135deg, #1e3a8a 0%, #0f766e 100%); border-radius: 20px; padding: 40px; margin-bottom: 30px; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .welcome-banner h1 { color: white; font-weight: 700; margin-bottom: 5px; font-size: 28px;}
+        .welcome-banner p { color: rgba(255,255,255,0.7); margin: 0; }
+        .browse-btn { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 10px 20px; border-radius: 10px; font-weight: 600; transition: 0.3s; text-decoration: none;}
+        .browse-btn:hover { background: white; color: #1e3a8a; }
+
+        .content-card { background: #111827; border: 1px solid #1f2937; border-radius: 16px; padding: 30px; height: 100%; box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
+        .qr-wrapper { padding: 20px; background: #fff; border-radius: 20px; display: inline-block; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 4px solid #3b82f6; }
+        .qr-img { width: 200px; height: 200px; display: block; }
+
+        .table-responsive { background: transparent !important; }
+        .table { background: transparent !important; color: #ffffff !important; margin-bottom: 0; }
+        .table td { background: transparent !important; color: #ffffff !important; border-color: #1f2937 !important; }
+
+        .badge-in { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); padding: 5px 12px; border-radius: 50px; font-weight: 600; font-size: 12px;}
+        .badge-out { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); padding: 5px 12px; border-radius: 50px; font-weight: 600; font-size: 12px;}
+
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; }
+        .overlay.active { display: block; }
+
+        @media (max-width: 768px) {
+            .main-content { padding: 20px 15px; }
+            .welcome-banner { padding: 25px; }
+            .qr-img { width: 150px; height: 150px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="brand">
+        <img src="plmun_logo.png" alt="Logo" style="width: 40px; height: 40px; border-radius: 50%;" onerror="this.src='https://ui-avatars.com/api/?name=PLM&background=1e3a8a&color=fff'">
+        <div><h4>PLMUN</h4><span>Student Portal</span></div>
+    </div>
+    <a href="./student_dashboard.html" class="active"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
+    <a href="./profile.html"><i class="bi bi-person-fill"></i> My Profile</a>
+    <div style="margin-top: auto; border-top: 1px solid #1f2937; padding-top: 20px;">
+        <a href="#" onclick="logout(event)" style="color: #ef4444;"><i class="bi bi-box-arrow-right"></i> Logout</a>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="top-header">
+        <div class="d-flex align-items-center">
+            <button class="menu-btn" id="menuBtn" onclick="toggleSidebar()" title="Toggle sidebar">
+                <i class="bi bi-list"></i>
+            </button>
+            <h3 class="fw-bold mb-0 text-white">Dashboard</h3>
+        </div>
+        <div class="user-profile" onclick="window.location.href='./profile.html'">
+            <img id="navAvatar" src="" alt="Student">
+            <span id="navRole">Student</span>
+        </div>
+    </div>
+
+    <div class="welcome-banner d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h1>Welcome back, <span id="navName">Student</span>!</h1>
+            <p>Here is your digital ID and recent campus activity.</p>
+        </div>
+        <a href="#" class="browse-btn" onclick="downloadQR(event)" id="downloadBtn">📥 Save Digital ID</a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="content-card text-center">
+                <h5 class="text-white fw-bold mb-4">Digital ID</h5>
+                <div class="qr-wrapper mb-4"><img id="myQR" src="" alt="QR Code" class="qr-img" crossorigin="anonymous"></div>
+                <p class="text-white-50 small mb-0">Present this QR code at the campus gate for entry/exit.</p>
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <div class="content-card mb-4">
+                <h5 class="text-white fw-bold mb-4">Profile Information</h5>
+                <div class="row g-3">
+                    <div class="col-sm-6"><p class="text-white-50 small mb-1">Email Address</p><h6 class="text-white fw-bold" id="profileEmail">-</h6></div>
+                    <div class="col-sm-6"><p class="text-white-50 small mb-1">User ID</p><h6 class="text-white fw-bold" id="profileID">-</h6></div>
+                </div>
+            </div>
+            <div class="content-card">
+                <h5 class="text-white fw-bold mb-4">Recent Activity</h5>
+                <div class="table-responsive">
+                    <table class="table table-borderless align-middle"><tbody id="historyTable"><tr><td colspan="3" class="text-center text-white-50 py-4">Loading data...</td></tr></tbody></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser || (currentUser.role !== 'Student' && currentUser.role !== 'Faculty')) { window.location.href = 'login.html'; }
+
+    document.getElementById('navName').innerText = currentUser.fullName.split(' ')[0];
+    document.getElementById('navRole').innerText = currentUser.role;
+    document.getElementById('profileEmail').innerText = currentUser.email;
+    document.getElementById('profileID').innerText = currentUser.userId;
+    document.getElementById('navAvatar').src = currentUser.profileImage || `https://ui-avatars.com/api/?name=${currentUser.fullName.replace(' ', '+')}&background=fbbf24&color=000`;
+    document.getElementById('myQR').src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(currentUser.qrString)}`;
+
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('overlay').classList.toggle('active');
+    }
+
+    function logout(e) {
+        if (e) e.preventDefault();
+        localStorage.removeItem('currentUser');
+        window.location.href = 'login.html';
+    }
+
+    // ---------- DOWNLOAD QR (fetch as blob — works on all browsers) ----------
+    async function downloadQR(e) {
+        if (e) e.preventDefault();
+
+        const btn = document.getElementById('downloadBtn');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '⏳ Preparing...';
+        btn.style.pointerEvents = 'none';
+
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=800x800&data=${encodeURIComponent(currentUser.qrString)}`;
+        const fileName = 'PLMun_QR_' + currentUser.fullName.replace(/\s+/g, '_') + '.png';
+
+        try {
+            // Fetch the QR image as a blob so the browser treats it as same-origin
+            const response = await fetch(qrUrl, { mode: 'cors' });
+            if (!response.ok) throw new Error('QR fetch failed');
+            const blob = await response.blob();
+
+            // Create a temporary blob URL and trigger a real download
+            const blobUrl = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Release memory
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+
+        } catch (err) {
+            // Fallback: open the QR in a new tab if fetch is blocked
+            console.warn('Blob download failed, falling back to open-in-tab:', err);
+            window.open(qrUrl, '_blank');
+        } finally {
+            btn.innerHTML = originalHTML;
+            btn.style.pointerEvents = 'auto';
+        }
+    }
+
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyas8e-2kLTcKIuMG70jVKDwpHz0Xg8XhGLZ1U6_brxbMK89PtcHlVW4MXhqhO_Mbif/exec';
+    async function loadHistory() {
+        const tbody = document.getElementById('historyTable');
+        try {
+            const response = await fetch(`${API_URL}?action=personalLogs&userId=${currentUser.userId}`);
+            const result = await response.json();
+            tbody.innerHTML = '';
+            if (result.success && result.logs.length > 0) {
+                result.logs.forEach(log => {
+                    const badge = log.action === 'IN' ? '<span class="badge-in">IN</span>' : '<span class="badge-out">OUT</span>';
+                    tbody.innerHTML += `<tr style="border-bottom: 1px solid #1f2937;"><td class="text-white-50" style="font-size: 14px;">${log.time}</td><td>${badge}</td><td class="text-white-50 text-end" style="font-size: 13px;">${log.gate}</td></tr>`;
+                });
+            } else { tbody.innerHTML = '<tr><td colspan="3" class="text-center text-white-50 py-4">No records yet.</td></tr>'; }
+        } catch (e) { tbody.innerHTML = '<tr><td colspan="3" class="text-danger text-center">Error loading data.</td></tr>'; }
+    }
+    loadHistory();
+</script>
+</body>
+</html>

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PLMun - Register</title>
+
+    <link rel="icon" type="image/png" href="plmun_logo.png">
+    <link rel="shortcut icon" type="image/png" href="plmun_logo.png">
+    <link rel="apple-touch-icon" href="plmun_logo.png">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        /* DARK THEME BACKGROUND (Tugma sa Login at Dashboard) */
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background-color: #0b1120; 
+            background-image: radial-gradient(circle at top right, #1e3a8a 0%, transparent 40%), radial-gradient(circle at bottom left, #0f766e 0%, transparent 40%); 
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 20px; 
+            position: relative;
+        }
+
+        /* DARK CARD */
+        .register-card { 
+            background: #111827; 
+            border: 1px solid #1f2937; 
+            border-radius: 20px; 
+            padding: 40px; 
+            width: 100%; 
+            max-width: 480px; 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5); 
+            position: relative; 
+            overflow: hidden; 
+            animation: slideUp 0.6s ease-out;
+        }
+        .register-card::before { 
+            content: ''; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 4px; 
+            background: linear-gradient(90deg, #fbbf24, #f59e0b); 
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* TEXT COLORS */
+        h3 { color: #ffffff; font-weight: 700; }
+        .form-label { color: #d1d5db; font-weight: 500; font-size: 14px; }
+
+        /* INPUT FIELDS */
+        .form-control, .form-select { 
+            background: #1f2937; 
+            border: 1px solid #374151; 
+            color: #ffffff; 
+            border-radius: 10px; 
+            padding: 12px 15px; 
+            font-weight: 400; 
+            transition: 0.3s; 
+        }
+        .form-control:focus, .form-select:focus { 
+            background: #1f2937; 
+            border-color: #3b82f6; 
+            color: #ffffff; 
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); 
+        }
+        .form-control::placeholder { color: #6b7280; }
+
+        /* PASSWORD EYE ICON */
+        .password-wrapper { position: relative; }
+        .password-wrapper .form-control { padding-right: 45px; }
+        .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #9ca3af; font-size: 18px; transition: 0.2s; }
+        .toggle-password:hover { color: #ffffff; }
+
+        /* BUTTON */
+        .btn-primary-custom { 
+            background: #1e3a8a; 
+            color: white; 
+            border: none; 
+            padding: 14px; 
+            border-radius: 10px; 
+            font-weight: 600; 
+            width: 100%; 
+            font-size: 16px; 
+            transition: 0.3s; 
+        }
+        .btn-primary-custom:hover { 
+            background: #1e40af; 
+            box-shadow: 0 5px 15px rgba(30, 58, 138, 0.4); 
+        }
+
+        /* QR RESULT SECTION */
+        #qrResult { display: none; text-align: center; }
+        .qr-img { 
+            width: 200px; 
+            height: 200px; 
+            border-radius: 16px; 
+            border: 3px solid #3b82f6; 
+            margin-bottom: 20px; 
+            padding: 10px; 
+            background: #fff; 
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3); 
+        }
+        /* PASSWORD STRENGTH METER */
+        .strength-meter { margin-top: 8px; }
+        .strength-bar { height: 6px; border-radius: 3px; background: #374151; overflow: hidden; }
+        .strength-bar-fill { height: 100%; width: 0%; border-radius: 3px; transition: width 0.3s ease, background-color 0.3s ease; }
+        .strength-text { font-size: 12px; font-weight: 600; margin-top: 4px; padding-left: 2px; color: #9ca3af; }
+
+        /* PASSWORD MATCH FEEDBACK */
+        .match-feedback { font-size: 12px; margin-top: 4px; padding-left: 4px; display: none; }
+        .match-feedback.match { color: #10b981; display: block; }
+        .match-feedback.mismatch { color: #ef4444; display: block; }
+
+        /* EMAIL FEEDBACK */
+        .email-feedback { font-size: 12px; margin-top: 4px; padding-left: 4px; display: none; }
+        .email-feedback.taken { color: #ef4444; display: block; }
+        .email-feedback.available { color: #10b981; display: block; }
+
+        /* TERMS AND CONDITIONS */
+        .terms-wrapper { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 18px; }
+        .terms-wrapper input[type="checkbox"] { width: 18px; height: 18px; margin-top: 2px; accent-color: #3b82f6; flex-shrink: 0; cursor: pointer; }
+        .terms-wrapper label { font-size: 13px; color: #9ca3af; cursor: pointer; line-height: 1.4; }
+        .terms-wrapper label a { color: #fbbf24; font-weight: 600; text-decoration: none; cursor: pointer; }
+        .terms-wrapper label a:hover { text-decoration: underline; }
+
+        /* TERMS MODAL CONTENT */
+        .terms-content { max-height: 400px; overflow-y: auto; font-size: 14px; color: #d1d5db; line-height: 1.7; }
+        .terms-content h6 { color: #fbbf24; font-weight: 700; margin-top: 16px; font-size: 14.5px; }
+        .terms-content p { margin-bottom: 10px; }
+        .terms-content .highlight-box { background: rgba(251, 191, 36, 0.1); border-left: 4px solid #fbbf24; padding: 10px 14px; border-radius: 6px; margin: 12px 0; font-size: 13px; color: #fbbf24; }
+
+        /* BACK BUTTON */
+        .back-btn { position: absolute; top: 15px; left: 15px; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: #1f2937; color: #ffffff; border-radius: 50%; text-decoration: none; font-size: 20px; transition: 0.3s; border: 1px solid #374151; z-index: 10; }
+        .back-btn:hover { background: #3b82f6; color: #ffffff; border-color: #3b82f6; transform: scale(1.1); }
+
+        .footer-text { color: #6b7280; font-size: 12px; text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #374151; }
+    </style>
+</head>
+<body>
+
+<div class="register-card">
+    <a href="login.html" class="back-btn" title="Back to Login">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+
+    <div id="formArea">
+        <h3 class="text-center mb-4">Create Account</h3>
+        <div class="mb-3"><label class="form-label">Full Name</label><input type="text" id="fullName" class="form-control" placeholder="Juan Dela Cruz" required></div>
+        <div class="mb-3">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="email" class="form-control" placeholder="juan@plmun.edu.ph" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Password</label>
+            <div class="password-wrapper">
+                <input type="password" id="password" class="form-control" placeholder="Enter Password" required oninput="checkPasswordStrength(); checkPasswordMatch();">
+                <i class="bi bi-eye-slash toggle-password" onclick="togglePassword('password', this)"></i>
+            </div>
+            <div class="strength-meter">
+                <div class="strength-bar"><div class="strength-bar-fill" id="strengthBarFill"></div></div>
+                <div class="strength-text" id="strengthText"></div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Confirm Password</label>
+            <div class="password-wrapper">
+                <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm Password" required oninput="checkPasswordMatch()">
+                <i class="bi bi-eye-slash toggle-password" onclick="togglePassword('confirmPassword', this)"></i>
+            </div>
+            <div class="match-feedback" id="passwordMatchFeedback"></div>
+        </div>
+        <div class="mb-4">
+            <label class="form-label">Role</label>
+            <select id="role" class="form-select">
+                <option value="Student">🎓 Student</option>
+                <option value="Faculty">👨‍🏫 Faculty</option>
+                <option value="Staff">💼 Staff</option>
+                <option value="Visitor">🛂 Visitor</option>
+                <option value="Admin">🛡️ Admin</option>
+                <option value="Guard">👮 Guard</option>
+            </select>
+        </div>
+
+        <div class="terms-wrapper">
+            <input type="checkbox" id="agreeTerms" required>
+            <label for="agreeTerms">I have read and agree to the <a data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</a> and <a data-bs-toggle="modal" data-bs-target="#termsModal">Privacy Policy</a> of PLMun.</label>
+        </div>
+
+        <button class="btn-primary-custom mb-3" id="registerBtn" onclick="register()">Create Account</button>
+        <p class="text-center mb-0" style="font-size: 14px; color: #9ca3af;">Already have an account? <a href="login.html" style="color: #fbbf24; font-weight: 600; text-decoration: none;">Log in</a></p>
+    </div>
+
+    <div id="qrResult">
+        <h3 class="mb-2" style="color: #10b981;">Registration Successful! 🎉</h3>
+        <p class="mb-4" style="color: #9ca3af; font-size: 14px;">Save your QR code below. You are now logged in.</p>
+        <img id="qrImage" src="" alt="QR Code" class="qr-img">
+        <h5 id="resultName" class="fw-bold mb-1" style="color: #ffffff;"></h5>
+        <p id="resultRole" class="mb-4" style="color: #9ca3af; font-size: 14px;"></p>
+        <div class="alert alert-warning border-0 rounded-3 text-start small mb-4" style="background: rgba(251, 191, 36, 0.1); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.2);">
+            ⚠️ <strong>Important:</strong> Save this QR code. It serves as your digital ID.
+        </div>
+        <button class="btn btn-dark w-100 mb-2 py-2 rounded-3" onclick="downloadQR()">📥 Save to Device</button>
+        <button class="btn btn-success w-100 py-2 rounded-3 fw-bold" onclick="goToDashboard()">Proceed to My Dashboard →</button>
+    </div>
+</div>
+
+<!-- Terms and Conditions Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: #111827; border: 1px solid #1f2937; border-radius: 16px;">
+            <div class="modal-header" style="background: #1e3a8a; color: white; border-radius: 16px 16px 0 0; border-bottom: 1px solid #374151;">
+                <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body terms-content">
+                <p><em>PLMun QR Code–Based Visitor Monitoring and Attendance Management System</em></p>
+
+                <div class="highlight-box">
+                    <strong>Summary:</strong> By registering, you agree to use the system responsibly, keep your QR code secure, and allow PLMun to collect and process your data for campus security and attendance purposes.
+                </div>
+
+                <h6>1. Purpose</h6>
+                <p>This system replaces manual logbooks with a digital QR code–based check-in/check-out and attendance monitoring platform for PLMun students, faculty, staff, and visitors.</p>
+
+                <h6>2. Account Responsibility</h6>
+                <p>You must provide accurate information and keep your password and QR code confidential. You are responsible for all activity under your account.</p>
+
+                <h6>3. Password Security</h6>
+                <p>You must create a strong password (at least 8 characters with an uppercase letter, a number, and a special character). Weak passwords will be rejected.</p>
+
+                <h6>4. QR Code Usage</h6>
+                <p>Your QR code is your digital ID. Do not share or duplicate it. Report any lost or compromised QR code to PLMun administration immediately.</p>
+
+                <h6>5. Data Privacy</h6>
+                <p>PLMun collects your name, email, role, and attendance logs solely for identification, access control, and reporting. Your data is stored securely and is not shared with third parties without your consent or as required by law.</p>
+
+                <h6>6. Prohibited Acts</h6>
+                <p>Impersonation, sharing QR codes, proxy attendance, and tampering with the system are strictly prohibited and may result in account suspension or disciplinary action.</p>
+
+                <h6>7. Contact</h6>
+                <p>For questions, contact: <a href="mailto:plmunvisitorsystem@gmail.com" style="color: #fbbf24;">plmunvisitorsystem@gmail.com</a></p>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #374151;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" style="background: #1e3a8a; border: none;" onclick="acceptTermsFromModal()">I Agree</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAvEt5YujwsC5iZGiBUNrCvcsy0IUIztUk",
+        authDomain: "plmun-system-v2.firebaseapp.com",
+        projectId: "plmun-system-v2",
+        storageBucket: "plmun-system-v2.firebasestorage.app",
+        messagingSenderId: "348432254532",
+        appId: "1:348432254532:web:5b1b138997f77a59ccb1e1",
+        measurementId: "G-GNVN5KHW50"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentQRString = '';
+    let currentName = '';
+    let registeredUser = null;
+
+    window.togglePassword = function(inputId, icon) {
+        const input = document.getElementById(inputId);
+        if (input.type === "password") { input.type = "text"; icon.classList.remove("bi-eye-slash"); icon.classList.add("bi-eye"); } 
+        else { input.type = "password"; icon.classList.remove("bi-eye"); icon.classList.add("bi-eye-slash"); }
+    }
+
+    function isStrongPassword(pwd) {
+        return pwd.length >= 8
+            && /[A-Z]/.test(pwd)
+            && /[0-9]/.test(pwd)
+            && /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(pwd);
+    }
+
+    function getPasswordStrength(pwd) {
+        if (!pwd) return { label: '', level: 0, color: '#e9ecef', valid: false };
+        let score = 0;
+        if (pwd.length >= 8) score++;
+        if (/[A-Z]/.test(pwd)) score++;
+        if (/[a-z]/.test(pwd)) score++;
+        if (/[0-9]/.test(pwd)) score++;
+        if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(pwd)) score++;
+        if (pwd.length >= 12) score++;
+
+        const valid = isStrongPassword(pwd);
+        if (score <= 2) return { label: 'Weak', level: 25, color: '#dc3545', valid: valid };
+        if (score === 3) return { label: 'Fair', level: 50, color: '#fd7e14', valid: valid };
+        if (score === 4) return { label: 'Good', level: 75, color: '#ffc107', valid: valid };
+        return { label: 'Strong', level: 100, color: '#198754', valid: valid };
+    }
+
+    window.checkPasswordStrength = function() {
+        const pwd = document.getElementById('password').value;
+        const fill = document.getElementById('strengthBarFill');
+        const text = document.getElementById('strengthText');
+        const result = getPasswordStrength(pwd);
+
+        text.className = 'strength-text';
+        if (!pwd) { fill.style.width = '0%'; text.textContent = ''; return; }
+
+        fill.style.width = result.level + '%';
+        fill.style.backgroundColor = result.color;
+        text.textContent = result.label;
+        text.style.color = result.color;
+    }
+
+    window.checkPasswordMatch = function() {
+        const pwd = document.getElementById('password').value;
+        const confirmPwd = document.getElementById('confirmPassword').value;
+        const feedback = document.getElementById('passwordMatchFeedback');
+        feedback.classList.remove('match', 'mismatch');
+
+        if (confirmPwd.length === 0) { feedback.textContent = ''; feedback.style.display = 'none'; return; }
+
+        if (pwd === confirmPwd) { feedback.textContent = '✓ Passwords match'; feedback.classList.add('match'); }
+        else { feedback.textContent = '✗ Passwords do not match'; feedback.classList.add('mismatch'); }
+    }
+
+    window.acceptTermsFromModal = function() {
+        document.getElementById('agreeTerms').checked = true;
+        const modal = bootstrap.Modal.getInstance(document.getElementById('termsModal'));
+        modal.hide();
+    }
+
+    window.register = async function() {
+        const fullName = document.getElementById('fullName').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const confirmPassword = document.getElementById('confirmPassword').value.trim();
+        const role = document.getElementById('role').value;
+        const agreeTerms = document.getElementById('agreeTerms').checked;
+        const btn = document.getElementById('registerBtn');
+
+        if (!fullName || !email || !password || !confirmPassword) return alert('Please fill in all fields.');
+        if (!isStrongPassword(password)) {
+            const missing = [];
+            if (password.length < 8) missing.push('at least 8 characters');
+            if (!/[A-Z]/.test(password)) missing.push('an uppercase letter');
+            if (!/[0-9]/.test(password)) missing.push('a number');
+            if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(password)) missing.push('a special character');
+            return alert('Password is not strong enough. It must contain: ' + missing.join(', ') + '.');
+        }
+        if (password !== confirmPassword) return alert('Passwords do not match. Please re-enter your password.');
+        if (!agreeTerms) return alert('You must agree to the Terms and Conditions and Privacy Policy to create an account.');
+
+        btn.innerText = 'Processing...'; btn.disabled = true;
+
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            const qrString = crypto.randomUUID();
+
+            await setDoc(doc(db, "users", user.uid), {
+                fullName: fullName, email: email, role: role,
+                qrString: qrString, status: "Active", profileImage: ""
+            });
+
+            currentQRString = qrString;
+            currentName = fullName;
+            registeredUser = { userId: user.uid, fullName, role, email, qrString };
+
+            document.getElementById('qrImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(qrString)}`;
+            document.getElementById('resultName').innerText = fullName;
+            document.getElementById('resultRole').innerText = role + ' • ' + email;
+            document.getElementById('formArea').style.display = 'none';
+            document.getElementById('qrResult').style.display = 'block';
+
+        } catch (error) {
+            if (error.code === 'auth/email-already-in-use') {
+                alert('⚠️ This email is already registered. Please log in instead.');
+            } else { alert('Registration Failed: ' + error.message); }
+        } finally { btn.innerText = 'Create Account'; btn.disabled = false; }
+    }
+
+    window.downloadQR = function() {
+        const link = document.createElement('a');
+        link.href = `https://api.qrserver.com/v1/create-qr-code/?size=800x800&data=${encodeURIComponent(currentQRString)}`;
+        link.download = 'PLMun_QR_' + currentName.replace(/\s+/g, '_') + '.png';
+        link.click();
+    }
+
+    window.goToDashboard = function() {
+        if (!registeredUser) return alert('Registration data missing.');
+        localStorage.setItem('currentUser', JSON.stringify(registeredUser));
+        
+    
+        if (registeredUser.role === 'Admin' || registeredUser.role === 'Staff') { window.location.href = 'admin_dashboard.html'; } 
+        else if (registeredUser.role === 'Guard') { window.location.href = 'guard_dashboard.html'; } 
+        else if (registeredUser.role === 'Student' || registeredUser.role === 'Faculty') { window.location.href = 'student_dashboard.html'; } 
+        else if (registeredUser.role === 'Visitor') { window.location.href = 'visitor_dashboard.html'; }
+    }
+</script>
+</body>
+</html>
